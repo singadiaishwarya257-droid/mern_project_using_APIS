@@ -53,11 +53,17 @@ const TasksPage = ({ auth, onLogout }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      const payload = {
+        ...form,
+        project_id: form.project_id?.toString().trim() ? Number(form.project_id) : null,
+        assignee_id: form.assignee_id?.toString().trim() ? Number(form.assignee_id) : null,
+        due_date: form.due_date || null,
+      };
       if (editing) {
-        await api.put(`/tasks/${editing}`, form);
+        await api.put(`/tasks/${editing}`, payload);
         setMessage('Task updated successfully');
       } else {
-        await api.post('/tasks', form);
+        await api.post('/tasks', payload);
         setMessage('Task created successfully');
       }
       resetForm();

@@ -33,9 +33,12 @@ export const getProjectById = async (req, res, next) => {
 export const createProject = async (req, res, next) => {
   try {
     const { name, description, status, start_date, end_date, owner_id } = req.body;
+    const sanitizedOwnerId = owner_id === '' || owner_id === undefined ? null : owner_id;
+    const sanitizedStartDate = start_date === '' ? null : start_date;
+    const sanitizedEndDate = end_date === '' ? null : end_date;
     await pool.query(
       'INSERT INTO projects (name, description, status, start_date, end_date, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())',
-      [name, description, status || 'planning', start_date, end_date, owner_id]
+      [name, description, status || 'planning', sanitizedStartDate, sanitizedEndDate, sanitizedOwnerId]
     );
     return res.status(201).json({ message: 'Project created successfully' });
   } catch (error) {
@@ -46,9 +49,12 @@ export const createProject = async (req, res, next) => {
 export const updateProject = async (req, res, next) => {
   try {
     const { name, description, status, start_date, end_date, owner_id } = req.body;
+    const sanitizedOwnerId = owner_id === '' || owner_id === undefined ? null : owner_id;
+    const sanitizedStartDate = start_date === '' ? null : start_date;
+    const sanitizedEndDate = end_date === '' ? null : end_date;
     await pool.query(
       'UPDATE projects SET name = COALESCE(?, name), description = COALESCE(?, description), status = COALESCE(?, status), start_date = COALESCE(?, start_date), end_date = COALESCE(?, end_date), owner_id = COALESCE(?, owner_id), updated_at = NOW() WHERE id = ?',
-      [name, description, status, start_date, end_date, owner_id, req.params.id]
+      [name, description, status, sanitizedStartDate, sanitizedEndDate, sanitizedOwnerId, req.params.id]
     );
     return res.json({ message: 'Project updated successfully' });
   } catch (error) {

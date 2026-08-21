@@ -19,6 +19,10 @@ export const register = async (req, res, next) => {
     const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
     if (existing.length) return res.status(409).json({ error: 'Email already registered' });
 
+    // Validate provided role_id exists to avoid foreign key errors
+    const [roleRows] = await pool.query('SELECT id FROM roles WHERE id = ?', [role_id]);
+    if (!roleRows.length) return res.status(400).json({ error: 'Invalid role_id' });
+
     const password_hash = await bcrypt.hash(password, 12);
     const [result] = await pool.query(
       'INSERT INTO users (name, email, password_hash, role_id, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())',

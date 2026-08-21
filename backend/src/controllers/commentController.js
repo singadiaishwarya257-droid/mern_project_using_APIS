@@ -35,7 +35,17 @@ export const getCommentById = async (req, res, next) => {
 export const createComment = async (req, res, next) => {
   try {
     const { content, task_id } = req.body;
-    await pool.query('INSERT INTO comments (content, task_id, user_id, created_at) VALUES (?, ?, ?, NOW())', [content, task_id, req.user.id]);
+    const parsedTaskId = Number(task_id);
+    if (!Number.isInteger(parsedTaskId) || parsedTaskId <= 0) {
+      return res.status(400).json({ error: 'A valid task_id is required' });
+    }
+
+    const [[task]] = await pool.query('SELECT id FROM tasks WHERE id = ?', [parsedTaskId]);
+    if (!task) {
+      return res.status(400).json({ error: 'Task not found' });
+    }
+
+    await pool.query('INSERT INTO comments (content, task_id, user_id, created_at) VALUES (?, ?, ?, NOW())', [content, parsedTaskId, req.user.id]);
     return res.status(201).json({ message: 'Comment created successfully' });
   } catch (error) {
     return next(error);

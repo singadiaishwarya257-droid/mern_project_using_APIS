@@ -35,9 +35,12 @@ export const getTaskById = async (req, res, next) => {
 export const createTask = async (req, res, next) => {
   try {
     const { title, description, status, priority, due_date, project_id, assignee_id } = req.body;
+    const sanitizedDueDate = due_date === '' ? null : due_date;
+    const sanitizedProjectId = project_id === '' || project_id === undefined ? null : project_id;
+    const sanitizedAssigneeId = assignee_id === '' || assignee_id === undefined ? null : assignee_id;
     await pool.query(
       'INSERT INTO tasks (title, description, status, priority, due_date, project_id, assignee_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
-      [title, description, status || 'todo', priority || 'medium', due_date, project_id, assignee_id]
+      [title, description, status || 'todo', priority || 'medium', sanitizedDueDate, sanitizedProjectId, sanitizedAssigneeId]
     );
     return res.status(201).json({ message: 'Task created successfully' });
   } catch (error) {
@@ -48,9 +51,12 @@ export const createTask = async (req, res, next) => {
 export const updateTask = async (req, res, next) => {
   try {
     const { title, description, status, priority, due_date, project_id, assignee_id } = req.body;
+    const sanitizedDueDate = due_date === '' ? null : due_date;
+    const sanitizedProjectId = project_id === '' || project_id === undefined ? null : project_id;
+    const sanitizedAssigneeId = assignee_id === '' || assignee_id === undefined ? null : assignee_id;
     await pool.query(
       'UPDATE tasks SET title = COALESCE(?, title), description = COALESCE(?, description), status = COALESCE(?, status), priority = COALESCE(?, priority), due_date = COALESCE(?, due_date), project_id = COALESCE(?, project_id), assignee_id = COALESCE(?, assignee_id), updated_at = NOW() WHERE id = ?',
-      [title, description, status, priority, due_date, project_id, assignee_id, req.params.id]
+      [title, description, status, priority, sanitizedDueDate, sanitizedProjectId, sanitizedAssigneeId, req.params.id]
     );
     return res.json({ message: 'Task updated successfully' });
   } catch (error) {

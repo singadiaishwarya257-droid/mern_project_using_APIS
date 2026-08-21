@@ -4,6 +4,7 @@ import Header from '../components/Header.jsx';
 
 const CommentsPage = ({ auth, onLogout }) => {
   const [comments, setComments] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [search, setSearch] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState({ content: '', task_id: '' });
@@ -19,7 +20,19 @@ const CommentsPage = ({ auth, onLogout }) => {
     }
   };
 
-  useEffect(() => { loadComments(); }, []);
+  const loadTasks = async () => {
+    try {
+      const response = await api.get('/tasks');
+      setTasks(response.data);
+    } catch (err) {
+      setMessage(err.response?.data?.error || 'Unable to load tasks');
+    }
+  };
+
+  useEffect(() => {
+    loadComments();
+    loadTasks();
+  }, []);
 
   const resetForm = () => {
     setForm({ content: '', task_id: '' });
@@ -29,7 +42,17 @@ const CommentsPage = ({ auth, onLogout }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      await api.post('/comments', form);
+      const payload = {
+        ...form,
+        task_id: form.task_id ? Number(form.task_id) : null,
+      };
+
+      if (!payload.task_id) {
+        setMessage('Please select a valid task.');
+        return;
+      }
+
+      await api.post('/comments', payload);
       setMessage('Comment created successfully');
       resetForm();
       loadComments();
@@ -117,8 +140,15 @@ const CommentsPage = ({ auth, onLogout }) => {
                 <textarea value={form.content} required onChange={(e) => setForm({ ...form, content: e.target.value })} />
               </label>
               <label>
-                Task ID
-                <input value={form.task_id} required onChange={(e) => setForm({ ...form, task_id: e.target.value })} />
+                Task
+                <select value={form.task_id} required onChange={(e) => setForm({ ...form, task_id: e.target.value })}>
+                  <option value="">Select task</option>
+                  {tasks.map((task) => (
+                    <option key={task.id} value={task.id}>
+                      {task.title ? `${task.title} (#${task.id})` : `Task #${task.id}`}
+                    </option>
+                  ))}
+                </select>
               </label>
               <div className="form-actions">
                 <button type="submit" className="primary-button">Save comment</button>

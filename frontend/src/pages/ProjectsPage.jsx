@@ -40,10 +40,20 @@ const ProjectsPage = ({ auth, onLogout }) => {
     event.preventDefault();
     try {
       if (editing) {
-        await api.put(`/projects/${editing}`, form);
+        await api.put(`/projects/${editing}`, {
+          ...form,
+          owner_id: form.owner_id?.toString().trim() ? Number(form.owner_id) : null,
+          start_date: form.start_date || null,
+          end_date: form.end_date || null,
+        });
         setMessage('Project updated successfully');
       } else {
-        await api.post('/projects', form);
+        await api.post('/projects', {
+          ...form,
+          owner_id: form.owner_id?.toString().trim() ? Number(form.owner_id) : null,
+          start_date: form.start_date || null,
+          end_date: form.end_date || null,
+        });
         setMessage('Project created successfully');
       }
       resetForm();
