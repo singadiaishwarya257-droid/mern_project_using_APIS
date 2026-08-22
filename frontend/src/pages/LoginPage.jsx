@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import api, { attachToken } from '../services/api.js';
 
 const LoginPage = ({ onLogin }) => {
@@ -35,6 +36,9 @@ const LoginPage = ({ onLogin }) => {
           {error && <div className="error-message">{error}</div>}
           <button type="submit">Sign in</button>
         </form>
+        <p className="auth-switch">
+          Need an account? <Link to="/register">Create one</Link>
+        </p>
       </div>
     </main>
   );

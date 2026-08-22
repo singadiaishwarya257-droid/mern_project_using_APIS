@@ -53,3 +53,4 @@ A task management application built with React, Node.js, Express, and MySQL.
 
 ## Postman collection
 Import `postman/task-management-api.postman_collection.json` into Postman to test all endpoints.
+

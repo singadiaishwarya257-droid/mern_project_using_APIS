@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import UsersPage from './pages/UsersPage.jsx';
 import TasksPage from './pages/TasksPage.jsx';
@@ -44,6 +45,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+      <Route path="/register" element={<RegisterPage onRegister={handleLogin} />} />
       <Route
         path="/dashboard"
         element={<PrivateRoute auth={auth}><DashboardPage auth={auth} onLogout={handleLogout} /></PrivateRoute>}

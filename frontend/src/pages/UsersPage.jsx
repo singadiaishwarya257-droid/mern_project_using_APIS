@@ -4,6 +4,7 @@ import Header from '../components/Header.jsx';
 
 const UsersPage = ({ auth, onLogout }) => {
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [query, setQuery] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', password: '', role_id: 3, status: 'active' });
@@ -19,7 +20,22 @@ const UsersPage = ({ auth, onLogout }) => {
     }
   };
 
+  const loadRoles = async () => {
+    try {
+      const response = await api.get('/roles');
+      setRoles(response.data);
+    } catch (err) {
+      // fallback defaults if roles endpoint is restricted
+      setRoles([
+        { id: 1, name: 'admin' },
+        { id: 2, name: 'manager' },
+        { id: 3, name: 'user' },
+      ]);
+    }
+  };
+
   useEffect(() => {
+    loadRoles();
     loadUsers();
   }, []);
 
@@ -93,7 +109,7 @@ const UsersPage = ({ auth, onLogout }) => {
                   <tr key={user.id}>
                     <td>{user.name}</td>
                     <td>{user.email}</td>
-                    <td>{user.role_id || 'user'}</td>
+                    <td>{(roles.find((r) => r.id === user.role_id)?.name) || user.role_id || 'user'}</td>
                     <td>{user.status}</td>
                     <td className="table-actions">
                       <button type="button" className="danger-button" onClick={() => handleDelete(user.id)}>Delete</button>
@@ -128,8 +144,12 @@ const UsersPage = ({ auth, onLogout }) => {
               </label>
               <div className="grid-2">
                 <label>
-                  Role ID
-                  <input type="number" value={form.role_id} min="1" onChange={(e) => setForm({ ...form, role_id: Number(e.target.value) })} />
+                  Role
+                  <select value={form.role_id} onChange={(e) => setForm({ ...form, role_id: Number(e.target.value) })}>
+                    {roles.map((r) => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
+                    ))}
+                  </select>
                 </label>
                 <label>
                   Status
